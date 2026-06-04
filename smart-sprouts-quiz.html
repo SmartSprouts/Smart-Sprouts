@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Sprouts Quiz 🌱</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #4CAF50;
+  --green2: #81C784;
+  --yellow: #FFD93D;
+  --orange: #FF9671;
+  --pink: #FF6B9D;
+  --purple: #845EC2;
+  --teal: #00C9A7;
+  --blue: #4FC3F7;
+  --red: #FF4757;
+  --bg: #F0FBF0;
+  --card: #FFFFFF;
+  --text: #2D2D2D;
+  --muted: #999;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;overflow-x:hidden;position:relative;}
+body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(90px);opacity:0.18;pointer-events:none;animation:blobPulse 8s ease-in-out infinite alternate;}
+body::before{width:420px;height:420px;background:var(--green);top:-120px;left:-120px;}
+body::after{width:380px;height:380px;background:var(--yellow);bottom:-100px;right:-100px;animation-delay:3s;}
+@keyframes blobPulse{from{transform:scale(1);}to{transform:scale(1.3) translate(20px,20px);}}
+
+.app{width:100%;max-width:580px;position:relative;z-index:10;}
+
+/* CARD */
+.card{background:var(--card);border-radius:36px;padding:34px 30px;box-shadow:0 6px 0 var(--green2),0 12px 0 rgba(0,0,0,0.06),0 24px 60px rgba(0,0,0,0.1);animation:cardPop .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes cardPop{from{transform:scale(.85) translateY(30px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+
+/* LOGO */
+.logo-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;}
+.logo-icon{font-size:2.4rem;animation:sproutWiggle 2.5s ease-in-out infinite;}
+@keyframes sproutWiggle{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(8deg);}}
+.logo-text{font-family:'Fredoka One',cursive;font-size:2rem;background:linear-gradient(135deg,#2E7D32,#66BB6A,#AED581);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-sub{text-align:center;font-size:.78rem;font-weight:900;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:22px;}
+
+/* SCREEN MANAGER */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* NAV TABS */
+.nav-tabs{display:flex;background:#F5F5F5;border-radius:20px;padding:4px;gap:4px;margin-bottom:24px;}
+.nav-tab{flex:1;padding:10px;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s;}
+.nav-tab.active{background:white;color:var(--green);box-shadow:0 2px 8px rgba(0,0,0,.1);}
+
+/* HOME */
+.ai-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--green),var(--teal));color:white;border-radius:50px;padding:5px 16px;font-size:.78rem;font-weight:900;margin-bottom:18px;letter-spacing:.5px;}
+.topic-label{font-size:.78rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;}
+.topic-input{width:100%;padding:15px 18px;border:3px solid #EEE;border-radius:18px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;color:var(--text);background:#FAFAFA;outline:none;transition:all .2s;margin-bottom:12px;}
+.topic-input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(76,175,80,.12);background:white;}
+.chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:18px;}
+.chip{padding:7px 14px;border:2px solid #EEE;border-radius:50px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer;background:white;color:var(--text);transition:all .2s;}
+.chip:hover{border-color:var(--green);background:var(--green);color:white;transform:translateY(-2px);}
+.age-row{display:flex;gap:10px;margin-bottom:22px;}
+.age-btn{flex:1;padding:11px;border:3px solid #EEE;border-radius:15px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;background:white;color:var(--text);transition:all .2s;}
+.age-btn.active{border-color:var(--green);background:var(--green);color:white;box-shadow:0 4px 0 rgba(76,175,80,.3);}
+.start-btn{width:100%;padding:18px;border:none;border-radius:20px;background:linear-gradient(135deg,#388E3C,#66BB6A);color:white;font-family:'Fredoka One',cursive;font-size:1.4rem;cursor:pointer;box-shadow:0 6px 0 #2E7D32;transition:all .2s;letter-spacing:1px;}
+.start-btn:hover{transform:translateY(-3px);box-shadow:0 10px 0 #2E7D32;}
+.start-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #2E7D32;}
+.start-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.err-box{background:#FFF3F3;border:2px solid var(--red);border-radius:14px;padding:14px;margin-top:14px;font-size:.88rem;color:var(--red);font-weight:700;display:none;}
+
+/* LOADING */
+#loading{text-align:center;}
+.spin-emoji{font-size:4rem;display:block;margin-bottom:14px;animation:spinIt 1s linear infinite;}
+@keyframes spinIt{to{transform:rotate(360deg);}}
+.load-title{font-family:'Fredoka One',cursive;font-size:1.6rem;color:var(--green);margin-bottom:6px;}
+.load-sub{font-size:.9rem;color:var(--muted);font-weight:700;}
+.dots span{display:inline-block;width:10px;height:10px;border-radius:50%;margin:18px 4px 0;animation:dotBounce 1.2s ease-in-out infinite;}
+.dots span:nth-child(1){background:var(--green);}
+.dots span:nth-child(2){background:var(--yellow);animation-delay:.2s;}
+.dots span:nth-child(3){background:var(--teal);animation-delay:.4s;}
+@keyframes dotBounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-14px);}}
+
+/* QUIZ */
+.top-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.q-pill{background:var(--yellow);border-radius:50px;padding:6px 14px;font-size:.85rem;font-weight:900;color:#333;white-space:nowrap;flex-shrink:0;}
+.prog-track{flex:1;height:14px;background:#EEE;border-radius:50px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--green),var(--teal));transition:width .5s ease;}
+.score-pill{background:linear-gradient(135deg,var(--orange),var(--pink));border-radius:50px;padding:6px 14px;font-size:.9rem;font-weight:900;color:white;flex-shrink:0;}
+.q-box{background:linear-gradient(135deg,#F1F8E9,#E8F5E9);border-radius:24px;padding:26px 20px;text-align:center;margin-bottom:18px;min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.q-box::before{content:'🌿';position:absolute;font-size:6rem;opacity:.06;top:-10px;right:-10px;}
+.q-emoji{font-size:3.6rem;margin-bottom:10px;display:block;}
+.q-text{font-family:'Fredoka One',cursive;font-size:1.35rem;color:var(--text);line-height:1.3;}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.ans-btn{padding:17px 10px;border:3px solid #EEE;border-radius:18px;font-family:'Nunito',sans-serif;font-size:.98rem;font-weight:800;cursor:pointer;background:white;color:var(--text);transition:all .2s;box-shadow:0 4px 0 #DDD;min-height:66px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.3;}
+.ans-btn:hover:not(:disabled){transform:translateY(-3px);border-color:var(--green);box-shadow:0 8px 0 rgba(76,175,80,.2);}
+.ans-btn.correct{background:var(--green);border-color:#388E3C;color:white;box-shadow:0 4px 0 #2E7D32;animation:popRight .35s cubic-bezier(.34,1.56,.64,1);}
+.ans-btn.wrong{background:var(--red);border-color:#C62828;color:white;box-shadow:0 4px 0 #C62828;animation:shakeIt .4s ease;}
+@keyframes popRight{0%{transform:scale(1);}50%{transform:scale(1.08);}100%{transform:scale(1);}}
+@keyframes shakeIt{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+
+/* TOAST */
+.toast{position:fixed;top:22px;left:50%;transform:translateX(-50%) translateY(-120px);background:white;border-radius:20px;padding:13px 26px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 40px rgba(0,0,0,.15);font-family:'Fredoka One',cursive;font-size:1.15rem;z-index:999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.ok{color:var(--green);border-left:6px solid var(--green);}
+.toast.no{color:var(--red);border-left:6px solid var(--red);}
+
+/* RESULT */
+#result{text-align:center;}
+.trophy-big{font-size:5rem;display:block;margin-bottom:10px;animation:trophyBob 1s ease-in-out infinite;}
+@keyframes trophyBob{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-10px) scale(1.1);}}
+.res-title{font-family:'Fredoka One',cursive;font-size:2.2rem;color:var(--text);margin-bottom:4px;}
+.res-topic{font-size:.82rem;color:var(--muted);font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
+.stars-row{font-size:2.2rem;margin-bottom:14px;display:flex;justify-content:center;gap:6px;}
+.star-i{display:inline-block;animation:starPop .4s cubic-bezier(.34,1.56,.64,1) both;}
+.star-i:nth-child(1){animation-delay:.1s;}.star-i:nth-child(2){animation-delay:.25s;}.star-i:nth-child(3){animation-delay:.4s;}.star-i:nth-child(4){animation-delay:.55s;}.star-i:nth-child(5){animation-delay:.7s;}
+@keyframes starPop{from{transform:scale(0) rotate(-30deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+.big-score{font-family:'Fredoka One',cursive;font-size:3.8rem;background:linear-gradient(135deg,#388E3C,#66BB6A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;}
+.res-msg{font-size:.95rem;color:var(--muted);font-weight:700;margin-bottom:12px;}
+.name-input-wrap{margin-bottom:20px;}
+.name-input-wrap label{font-size:.8rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px;}
+.name-inp{width:100%;padding:13px 16px;border:3px solid #EEE;border-radius:16px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;outline:none;transition:all .2s;}
+.name-inp:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(76,175,80,.12);}
+.save-score-btn{width:100%;padding:14px;border:none;border-radius:16px;background:linear-gradient(135deg,#388E3C,#66BB6A);color:white;font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 0 #2E7D32;transition:all .2s;margin-bottom:14px;}
+.save-score-btn:hover{transform:translateY(-2px);}
+.btn-row{display:flex;gap:11px;}
+.rbtn{flex:1;padding:15px;border:none;border-radius:17px;font-family:'Fredoka One',cursive;font-size:1.05rem;cursor:pointer;transition:all .2s;color:white;}
+.rbtn-again{background:linear-gradient(135deg,var(--teal),#00897B);box-shadow:0 4px 0 #00695C;}
+.rbtn-home{background:linear-gradient(135deg,var(--purple),#6A1B9A);box-shadow:0 4px 0 #4A148C;}
+.rbtn:hover{transform:translateY(-2px);}
+
+/* LEADERBOARD */
+#leaderboard h2{font-family:'Fredoka One',cursive;font-size:1.6rem;color:var(--green);text-align:center;margin-bottom:6px;}
+.lb-sub{text-align:center;font-size:.82rem;color:var(--muted);font-weight:700;margin-bottom:20px;}
+.lb-list{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;}
+.lb-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#F9F9F9;border-radius:18px;border:2px solid #EEE;transition:all .2s;}
+.lb-item:nth-child(1){background:linear-gradient(135deg,#FFFDE7,#FFF9C4);border-color:var(--yellow);}
+.lb-item:nth-child(2){background:linear-gradient(135deg,#FAFAFA,#F5F5F5);border-color:#CCC;}
+.lb-item:nth-child(3){background:linear-gradient(135deg,#FBE9E7,#FFCCBC);border-color:#FF8A65;}
+.lb-rank{font-family:'Fredoka One',cursive;font-size:1.4rem;width:36px;text-align:center;}
+.lb-info{flex:1;}
+.lb-name{font-weight:900;font-size:.98rem;color:var(--text);}
+.lb-detail{font-size:.78rem;color:var(--muted);font-weight:700;}
+.lb-score{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--green);}
+.lb-empty{text-align:center;padding:30px;color:var(--muted);font-weight:700;}
+.clear-btn{width:100%;margin-top:14px;padding:12px;border:2px solid #EEE;border-radius:14px;background:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;color:var(--muted);transition:all .2s;}
+.clear-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* PARENT CONTROLS */
+#parents h2{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--green);text-align:center;margin-bottom:6px;}
+.parent-sub{text-align:center;font-size:.82rem;color:var(--muted);font-weight:700;margin-bottom:20px;}
+.pin-gate{text-align:center;padding:10px 0;}
+.pin-label{font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:12px;}
+.pin-row{display:flex;gap:10px;justify-content:center;margin-bottom:16px;}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:3px solid #DDD;background:white;transition:all .2s;}
+.pin-dot.filled{background:var(--green);border-color:var(--green);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 16px;}
+.pin-key{padding:14px;border:2px solid #EEE;border-radius:14px;font-family:'Fredoka One',cursive;font-size:1.3rem;cursor:pointer;background:white;color:var(--text);transition:all .2s;box-shadow:0 3px 0 #DDD;}
+.pin-key:hover{background:var(--green);color:white;border-color:var(--green);}
+.pin-key:active{transform:translateY(2px);box-shadow:0 1px 0 #DDD;}
+.pin-err{color:var(--red);font-size:.85rem;font-weight:700;min-height:20px;margin-bottom:10px;}
+.settings-panel{}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:2px solid #F5F5F5;}
+.setting-row:last-of-type{border-bottom:none;}
+.setting-info .s-title{font-weight:900;font-size:.95rem;color:var(--text);}
+.setting-info .s-desc{font-size:.78rem;color:var(--muted);font-weight:700;margin-top:2px;}
+.toggle{position:relative;width:52px;height:28px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:#DDD;border-radius:50px;cursor:pointer;transition:.3s;}
+.toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:4px;bottom:4px;background:white;border-radius:50%;transition:.3s;box-shadow:0 2px 4px rgba(0,0,0,.2);}
+.toggle input:checked+.toggle-slider{background:var(--green);}
+.toggle input:checked+.toggle-slider::before{transform:translateX(24px);}
+.setting-select{padding:8px 12px;border:2px solid #EEE;border-radius:12px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.88rem;outline:none;cursor:pointer;}
+.setting-select:focus{border-color:var(--green);}
+.change-pin-btn{width:100%;margin-top:16px;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#388E3C,#66BB6A);color:white;font-family:'Fredoka One',cursive;font-size:1.05rem;cursor:pointer;transition:all .2s;}
+.change-pin-btn:hover{transform:translateY(-2px);}
+
+/* CONFETTI */
+.conf{position:fixed;width:10px;height:10px;border-radius:3px;pointer-events:none;z-index:9999;animation:confFall linear forwards;}
+@keyframes confFall{0%{transform:translateY(-20px) rotate(0);opacity:1;}100%{transform:translateY(105vh) rotate(720deg);opacity:0;}}
+
+/* SOUND VISUAL */
+.sound-indicator{position:fixed;bottom:20px;right:20px;width:44px;height:44px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:100;transition:transform .2s;border:2px solid #EEE;}
+.sound-indicator:hover{transform:scale(1.1);}
+</style>
+</head>
+<body>
+
+<div class="app">
+<div class="card">
+
+  <!-- LOGO -->
+  <div class="logo-row">
+    <span class="logo-icon">🌱</span>
+    <div class="logo-text">Smart Sprouts</div>
+    <span class="logo-icon" style="animation-delay:.5s">🌱</span>
+  </div>
+  <div class="logo-sub">AI-Powered Kids Quiz</div>
+
+  <!-- NAV -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('home')">🎮 Play</button>
+    <button class="nav-tab" onclick="switchTab('leaderboard')">🏆 Scores</button>
+    <button class="nav-tab" onclick="switchTab('parents')">👨‍👩‍👧 Parents</button>
+  </div>
+
+  <!-- HOME -->
+  <div id="home" class="screen active">
+    <div style="text-align:center;margin-bottom:18px;">
+      <div class="ai-badge">🤖 Powered by Claude AI — Infinite Questions!</div>
+    </div>
+    <div class="topic-label">What do you want to learn about?</div>
+    <input class="topic-input" id="topic-input" type="text" placeholder="e.g. Ocean Animals, Space, Dinosaurs..." maxlength="60"/>
+    <div class="chips">
+      <button class="chip" onclick="setTopic('🐾 Animals')">🐾 Animals</button>
+      <button class="chip" onclick="setTopic('🌈 Colors')">🌈 Colors</button>
+      <button class="chip" onclick="setTopic('🔢 Numbers')">🔢 Numbers</button>
+      <button class="chip" onclick="setTopic('🚀 Space')">🚀 Space</button>
+      <button class="chip" onclick="setTopic('🦕 Dinosaurs')">🦕 Dinos</button>
+      <button class="chip" onclick="setTopic('🌊 Ocean')">🌊 Ocean</button>
+      <button class="chip" onclick="setTopic('🍎 Fruits & Food')">🍎 Food</button>
+      <button class="chip" onclick="setTopic('🌍 Countries')">🌍 World</button>
+    </div>
+    <div class="topic-label">Age Group</div>
+    <div class="age-row">
+      <button class="age-btn active" onclick="setAge(2,this)">👶 2–3</button>
+      <button class="age-btn" onclick="setAge(4,this)">🧒 4–5</button>
+      <button class="age-btn" onclick="setAge(6,this)">🧒 6–8</button>
+    </div>
+    <button class="start-btn" id="start-btn" onclick="startQuiz()">🌱 Grow My Quiz!</button>
+    <div class="err-box" id="home-err"></div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading" class="screen" style="text-align:center;">
+    <span class="spin-emoji">🌱</span>
+    <div class="load-title">Growing your quiz...</div>
+    <div class="load-sub" id="load-sub">AI is planting fun questions!</div>
+    <div class="dots"><span></span><span></span><span></span></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" class="screen">
+    <div class="top-bar">
+      <div class="q-pill" id="q-pill">1/5</div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="score-pill">⭐<span id="score-num">0</span></div>
+    </div>
+    <div class="q-box">
+      <span class="q-emoji" id="q-emoji">🌱</span>
+      <div class="q-text" id="q-text">Loading...</div>
+    </div>
+    <div class="answers" id="answers"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="screen">
+    <span class="trophy-big" id="trophy">🏆</span>
+    <div class="res-title" id="res-title">Amazing!</div>
+    <div class="res-topic" id="res-topic"></div>
+    <div class="stars-row" id="stars-row"></div>
+    <div class="big-score" id="big-score">5/5</div>
+    <div class="res-msg" id="res-msg">You got every answer right!</div>
+    <div class="name-input-wrap">
+      <label>Enter your name for the leaderboard!</label>
+      <input class="name-inp" id="player-name" type="text" placeholder="Your name..." maxlength="20"/>
+    </div>
+    <button class="save-score-btn" onclick="saveScore()">🏆 Save My Score!</button>
+    <div class="btn-row">
+      <button class="rbtn rbtn-again" onclick="playAgain()">🔄 Play Again</button>
+      <button class="rbtn rbtn-home" onclick="goHome()">🌱 New Topic</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div id="leaderboard" class="screen">
+    <h2>🏆 Top Sprouts!</h2>
+    <div class="lb-sub">The smartest players this week</div>
+    <div class="lb-list" id="lb-list"></div>
+    <button class="clear-btn" onclick="clearLeaderboard()">🗑️ Clear All Scores</button>
+  </div>
+
+  <!-- PARENTS -->
+  <div id="parents" class="screen">
+    <h2>👨‍👩‍👧 Parent Controls</h2>
+    <div class="parent-sub">Keep learning safe & fun</div>
+    <div id="pin-gate">
+      <div class="pin-label">Enter Parent PIN to access settings</div>
+      <div class="pin-row">
+        <div class="pin-dot" id="pd0"></div>
+        <div class="pin-dot" id="pd1"></div>
+        <div class="pin-dot" id="pd2"></div>
+        <div class="pin-dot" id="pd3"></div>
+      </div>
+      <div class="pin-pad">
+        <button class="pin-key" onclick="pinKey('1')">1</button>
+        <button class="pin-key" onclick="pinKey('2')">2</button>
+        <button class="pin-key" onclick="pinKey('3')">3</button>
+        <button class="pin-key" onclick="pinKey('4')">4</button>
+        <button class="pin-key" onclick="pinKey('5')">5</button>
+        <button class="pin-key" onclick="pinKey('6')">6</button>
+        <button class="pin-key" onclick="pinKey('7')">7</button>
+        <button class="pin-key" onclick="pinKey('8')">8</button>
+        <button class="pin-key" onclick="pinKey('9')">9</button>
+        <button class="pin-key" onclick="pinKey('C')" style="font-size:1rem;">CLR</button>
+        <button class="pin-key" onclick="pinKey('0')">0</button>
+        <button class="pin-key" onclick="pinKey('X')" style="font-size:1rem;">⌫</button>
+      </div>
+      <div class="pin-err" id="pin-err"></div>
+      <div style="text-align:center;font-size:.8rem;color:var(--muted);font-weight:700;">Default PIN: 1234</div>
+    </div>
+    <div id="settings-panel" style="display:none;">
+      <div class="settings-panel">
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="s-title">🔊 Sound Effects</div>
+            <div class="s-desc">Fun sounds when answering</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="s-sound" checked onchange="saveSetting('sound',this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="s-title">🎉 Confetti Celebration</div>
+            <div class="s-desc">Confetti when scoring well</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="s-confetti" checked onchange="saveSetting('confetti',this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="s-title">🏆 Leaderboard</div>
+            <div class="s-desc">Allow saving scores</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="s-lb" checked onchange="saveSetting('leaderboard',this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="s-title">❓ Questions per Quiz</div>
+            <div class="s-desc">How many questions per round</div>
+          </div>
+          <select class="setting-select" id="s-qcount" onchange="saveSetting('qcount',this.value)">
+            <option value="3">3 questions</option>
+            <option value="5" selected>5 questions</option>
+            <option value="7">7 questions</option>
+            <option value="10">10 questions</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="s-title">🌐 Default Age Group</div>
+            <div class="s-desc">Pre-select age on home screen</div>
+          </div>
+          <select class="setting-select" id="s-age" onchange="saveSetting('defaultAge',this.value)">
+            <option value="2">2–3 years</option>
+            <option value="4">4–5 years</option>
+            <option value="6">6–8 years</option>
+          </select>
+        </div>
+      </div>
+      <button class="change-pin-btn" onclick="changePin()">🔐 Change PIN</button>
+      <button class="clear-btn" style="margin-top:10px;" onclick="lockParents()">🔒 Lock Settings</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span id="toast-e">⭐</span>
+  <span id="toast-t">Correct!</span>
+</div>
+
+<!-- Sound button -->
+<div class="sound-indicator" id="sound-btn" onclick="toggleSoundBtn()" title="Toggle sound">🔊</div>
+
+<script>
+// ── STATE ──
+let selectedAge = 2;
+let currentQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+let currentTopic = '';
+let pinBuffer = '';
+let parentUnlocked = false;
+
+// ── SETTINGS (localStorage) ──
+let settings = {
+  sound: true,
+  confetti: true,
+  leaderboard: true,
+  qcount: 5,
+  defaultAge: 2,
+  pin: '1234'
+};
+
+function loadSettings() {
+  try {
+    const s = localStorage.getItem('ss_settings');
+    if (s) settings = {...settings, ...JSON.parse(s)};
+  } catch(e){}
+  document.getElementById('s-sound').checked = settings.sound;
+  document.getElementById('s-confetti').checked = settings.confetti;
+  document.getElementById('s-lb').checked = settings.leaderboard;
+  document.getElementById('s-qcount').value = settings.qcount;
+  document.getElementById('s-age').value = settings.defaultAge;
+  selectedAge = parseInt(settings.defaultAge);
+  document.querySelectorAll('.age-btn').forEach((b,i)=>{
+    b.classList.toggle('active', [2,4,6][i]===selectedAge);
+  });
+  updateSoundBtn();
+}
+
+function saveSetting(key, val) {
+  settings[key] = val;
+  try { localStorage.setItem('ss_settings', JSON.stringify(settings)); } catch(e){}
+}
+
+// ── SOUND ENGINE ──
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  return audioCtx;
+}
+
+function playTone(freq, type, duration, vol=0.3) {
+  if (!settings.sound) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch(e){}
+}
+
+function playCorrect() {
+  playTone(523, 'sine', 0.15, 0.4);
+  setTimeout(()=>playTone(659, 'sine', 0.15, 0.4), 100);
+  setTimeout(()=>playTone(784, 'sine', 0.3, 0.4), 200);
+}
+
+function playWrong() {
+  playTone(330, 'sawtooth', 0.1, 0.3);
+  setTimeout(()=>playTone(277, 'sawtooth', 0.25, 0.3), 100);
+}
+
+function playStart() {
+  [261,329,392,523].forEach((f,i)=>{
+    setTimeout(()=>playTone(f,'triangle',0.2,0.35),i*80);
+  });
+}
+
+function playComplete() {
+  [523,587,659,698,784].forEach((f,i)=>{
+    setTimeout(()=>playTone(f,'sine',0.25,0.4),i*100);
+  });
+}
+
+function playClick() {
+  playTone(800,'square',0.05,0.15);
+}
+
+function toggleSoundBtn() {
+  settings.sound = !settings.sound;
+  try{localStorage.setItem('ss_settings',JSON.stringify(settings));}catch(e){}
+  updateSoundBtn();
+  document.getElementById('s-sound').checked = settings.sound;
+}
+
+function updateSoundBtn() {
+  document.getElementById('sound-btn').textContent = settings.sound ? '🔊' : '🔇';
+}
+
+// ── LEADERBOARD ──
+function getLeaderboard() {
+  try { return JSON.parse(localStorage.getItem('ss_lb') || '[]'); } catch(e){ return []; }
+}
+
+function saveLeaderboard(lb) {
+  try { localStorage.setItem('ss_lb', JSON.stringify(lb)); } catch(e){}
+}
+
+function renderLeaderboard() {
+  const lb = getLeaderboard();
+  const el = document.getElementById('lb-list');
+  if (!lb.length) {
+    el.innerHTML = '<div class="lb-empty">🌱 No scores yet!<br>Play a quiz to get on the board!</div>';
+    return;
+  }
+  const medals = ['🥇','🥈','🥉'];
+  el.innerHTML = lb.map((item,i)=>`
+    <div class="lb-item">
+      <div class="lb-rank">${medals[i]||'🌟'}</div>
+      <div class="lb-info">
+        <div class="lb-name">${escHtml(item.name)}</div>
+        <div class="lb-detail">${escHtml(item.topic)} · ${item.date}</div>
+      </div>
+      <div class="lb-score">${item.score}/${item.total} ⭐</div>
+    </div>
+  `).join('');
+}
+
+function saveScore() {
+  if (!settings.leaderboard) return;
+  const name = document.getElementById('player-name').value.trim() || 'Anonymous Sprout';
+  const lb = getLeaderboard();
+  lb.push({
+    name,
+    score,
+    total: currentQuestions.length,
+    topic: currentTopic,
+    date: new Date().toLocaleDateString()
+  });
+  lb.sort((a,b)=> (b.score/b.total)-(a.score/a.total) || b.score-a.score);
+  saveLeaderboard(lb.slice(0,10));
+  showToast('🏆', `Score saved, ${name}!`, true);
+  playComplete();
+}
+
+function clearLeaderboard() {
+  if (confirm('Clear all scores?')) {
+    saveLeaderboard([]);
+    renderLeaderboard();
+  }
+}
+
+function escHtml(t) {
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── PARENT PIN ──
+function pinKey(k) {
+  playClick();
+  const errEl = document.getElementById('pin-err');
+  errEl.textContent = '';
+  if (k === 'C') { pinBuffer = ''; }
+  else if (k === 'X') { pinBuffer = pinBuffer.slice(0,-1); }
+  else if (pinBuffer.length < 4) { pinBuffer += k; }
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    if (pinBuffer === settings.pin) {
+      parentUnlocked = true;
+      document.getElementById('pin-gate').style.display = 'none';
+      document.getElementById('settings-panel').style.display = 'block';
+      pinBuffer = '';
+      updatePinDots();
+    } else {
+      errEl.textContent = '❌ Wrong PIN, try again!';
+      playWrong();
+      pinBuffer = '';
+      updatePinDots();
+    }
+  }
+}
+
+function updatePinDots() {
+  for (let i=0;i<4;i++) {
+    document.getElementById('pd'+i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function changePin() {
+  const np = prompt('Enter new 4-digit PIN:');
+  if (np && /^\d{4}$/.test(np)) {
+    settings.pin = np;
+    try{localStorage.setItem('ss_settings',JSON.stringify(settings));}catch(e){}
+    alert('PIN changed successfully!');
+  } else if (np) {
+    alert('PIN must be exactly 4 digits!');
+  }
+}
+
+function lockParents() {
+  parentUnlocked = false;
+  document.getElementById('pin-gate').style.display = 'block';
+  document.getElementById('settings-panel').style.display = 'none';
+  pinBuffer = '';
+  updatePinDots();
+}
+
+// ── TABS ──
+function switchTab(tab) {
+  playClick();
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>{
+    t.classList.toggle('active', ['home','leaderboard','parents'][i]===tab);
+  });
+  ['home','loading','quiz','result','leaderboard','parents'].forEach(s=>{
+    const el = document.getElementById(s);
+    if (el) el.className = 'screen' + (s===tab?' active':'');
+  });
+  if (tab==='leaderboard') renderLeaderboard();
+  if (tab==='parents' && parentUnlocked) {
+    document.getElementById('pin-gate').style.display='none';
+    document.getElementById('settings-panel').style.display='block';
+  }
+}
+
+function showScreen(id) {
+  ['home','loading','quiz','result','leaderboard','parents'].forEach(s=>{
+    const el = document.getElementById(s);
+    if (el) el.className = 'screen' + (s===id?' active':'');
+  });
+}
+
+// ── QUIZ ──
+function setTopic(t) { document.getElementById('topic-input').value = t; }
+
+function setAge(age, btn) {
+  selectedAge = age;
+  document.querySelectorAll('.age-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function startQuiz() {
+  const topicRaw = document.getElementById('topic-input').value.trim();
+  const topic = topicRaw || 'Animals';
+  currentTopic = topic;
+  const errEl = document.getElementById('home-err');
+  errEl.style.display = 'none';
+  const btn = document.getElementById('start-btn');
+  btn.disabled = true;
+  playStart();
+  showScreen('loading');
+
+  const qcount = parseInt(settings.qcount) || 5;
+  const ageDesc = selectedAge===2 ? '2-3 year old toddlers (very simple, one syllable answers)'
+                : selectedAge===4 ? '4-5 year old preschoolers (simple, fun)'
+                : '6-8 year old children (slightly more challenging)';
+
+  const prompt = `Create exactly ${qcount} multiple choice quiz questions about "${topic}" for ${ageDesc}.
+Return ONLY a valid JSON array, no markdown, no explanation:
+[{"emoji":"🐶","question":"What sound does a dog make?","answers":["Woof!","Meow!","Moo!","Oink!"],"correct":0}]
+Rules: emoji=single relevant emoji, question=short and fun, answers=exactly 4 options, correct=index 0-3. Age-appropriate. Vary correct answer positions.`;
+
+  try {
+    document.getElementById('load-sub').textContent = `Planting ${topic} questions for you!`;
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    if (!res.ok) throw new Error('API '+res.status);
+    const data = await res.json();
+    const raw = data.content.map(c=>c.text||'').join('');
+    const clean = raw.replace(/```json|```/g,'').trim();
+    currentQuestions = JSON.parse(clean);
+    if (!Array.isArray(currentQuestions)||!currentQuestions.length) throw new Error('Bad format');
+    currentIndex = 0; score = 0; answered = false;
+    showScreen('quiz');
+    renderQ();
+  } catch(err) {
+    showScreen('home');
+    errEl.style.display = 'block';
+    errEl.textContent = '😅 Could not generate quiz. Check your connection and try again!';
+    btn.disabled = false;
+  }
+}
+
+function renderQ() {
+  answered = false;
+  const q = currentQuestions[currentIndex];
+  const total = currentQuestions.length;
+  document.getElementById('q-pill').textContent = `${currentIndex+1}/${total}`;
+  document.getElementById('prog-fill').style.width = `${(currentIndex/total)*100}%`;
+  document.getElementById('score-num').textContent = score;
+  document.getElementById('q-emoji').textContent = q.emoji||'❓';
+  document.getElementById('q-text').textContent = q.question;
+  const grid = document.getElementById('answers');
+  grid.innerHTML = '';
+  q.answers.forEach((ans,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.textContent = ans;
+    btn.onclick = ()=>pick(i,q.correct,btn);
+    grid.appendChild(btn);
+  });
+}
+
+function pick(index, correct, btn) {
+  if (answered) return;
+  answered = true;
+  document.querySelectorAll('.ans-btn').forEach(b=>b.disabled=true);
+  if (index===correct) {
+    score++;
+    btn.classList.add('correct');
+    playCorrect();
+    showToast(['⭐','🎉','✨','🌟','💫'][Math.floor(Math.random()*5)],
+      ['Correct!','Amazing!','You got it!','Brilliant!','Super Sprout!'][Math.floor(Math.random()*5)], true);
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.ans-btn')[correct].classList.add('correct');
+    playWrong();
+    showToast(['😅','💪','🤔','🌱'][Math.floor(Math.random()*4)],
+      ['Good try!','Keep growing!','Almost!','Next time!'][Math.floor(Math.random()*4)], false);
+  }
+  document.getElementById('score-num').textContent = score;
+  setTimeout(()=>{
+    hideToast();
+    currentIndex++;
+    if (currentIndex < currentQuestions.length) renderQ();
+    else showResult();
+  },1300);
+}
+
+// ── RESULT ──
+function showResult() {
+  showScreen('result');
+  const total = currentQuestions.length;
+  const pct = score/total;
+  let trophy,title,msg;
+  if (pct===1)       {trophy='🏆';title='PERFECT!';msg='Every answer right! You\'re a Super Sprout! 🌱';}
+  else if (pct>=0.8) {trophy='🎉';title='Amazing!';msg='Fantastic job! You\'re growing so smart!';}
+  else if (pct>=0.6) {trophy='😊';title='Great Job!';msg='Nice work little sprout! Keep learning!';}
+  else if (pct>=0.4) {trophy='💪';title='Good Try!';msg='Great effort! Try again to beat your score!';}
+  else               {trophy='🌱';title='Keep Growing!';msg='Every sprout starts small! Try again!';}
+  document.getElementById('trophy').textContent = trophy;
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-topic').textContent = 'Topic: '+currentTopic;
+  document.getElementById('big-score').textContent = score+'/'+total;
+  document.getElementById('res-msg').textContent = msg;
+  const row = document.getElementById('stars-row');
+  row.innerHTML = '';
+  const starCount = Math.round(pct*5);
+  for(let i=0;i<5;i++){
+    const s=document.createElement('span');
+    s.className='star-i';
+    s.textContent = i<starCount?'⭐':'☆';
+    row.appendChild(s);
+  }
+  if (pct>=0.6 && settings.confetti) launchConfetti();
+  if (pct>=0.8) playComplete();
+  if (!settings.leaderboard) document.querySelector('.name-input-wrap').style.display='none';
+}
+
+function playAgain() { document.getElementById('start-btn').disabled=false; startQuiz(); }
+function goHome() {
+  document.getElementById('start-btn').disabled=false;
+  document.getElementById('home-err').style.display='none';
+  switchTab('home');
+}
+
+// ── TOAST ──
+function showToast(emoji, text, ok) {
+  const t=document.getElementById('toast');
+  document.getElementById('toast-e').textContent=emoji;
+  document.getElementById('toast-t').textContent=text;
+  t.className='toast '+(ok?'ok':'no')+' show';
+}
+function hideToast() { document.getElementById('toast').className='toast'; }
+
+// ── CONFETTI ──
+function launchConfetti() {
+  const colors=['#4CAF50','#FFD93D','#FF6B9D','#845EC2','#00C9A7','#FF9671','#4FC3F7'];
+  for(let i=0;i<70;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='conf';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=colors[Math.floor(Math.random()*colors.length)];
+      el.style.animationDuration=(2.5+Math.random()*2)+'s';
+      el.style.animationDelay=(Math.random()*.8)+'s';
+      const sz=(8+Math.random()*8)+'px';
+      el.style.width=el.style.height=sz;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),5000);
+    },i*25);
+  }
+}
+
+// ── INIT ──
+loadSettings();
+</script>
+</body>
+</html>
