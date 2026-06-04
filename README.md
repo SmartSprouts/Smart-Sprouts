@@ -1,2 +1,2 @@
-# Smart-Sprouts
+# Index
 toddler games
